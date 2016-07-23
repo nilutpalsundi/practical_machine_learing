@@ -1,0 +1,125 @@
+---
+title: "practical_machine_learning_project"
+author: "Nilutpal Sundi"
+date: "July 20, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Practical Machine Learning Project
+
+##Introduction
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it.In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of participants to predict the mannner in which they did excercise. 
+
+Loading packages required for this project
+```{r}
+library(caret)
+library(randomForest)
+library(corrplot)
+library(rpart)
+library(rpart.plot)
+```
+ ## Downloading and Loading the data
+ 
+```{r}
+get_train_data <-"https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+get_test_data <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+
+train_file <- "./data/pml-training.csv"
+test_file  <- "./data/pml-testing.csv"
+
+if (!file.exists("./data")) {
+  dir.create("./data")
+}
+if (!file.exists(train_file)) {
+  download.file(get_train_data, destfile=train_file, method="curl")
+}
+if (!file.exists(test_file)) {
+  download.file(get_test_data, destfile=test_file, method="curl")
+}
+
+
+train_csv <-read.csv("./data/pml-training.csv")
+test_csv <- read.csv("./data/pml-testing.csv")
+```
+Checking the dimensions of the training and test datasets.
+```{r}
+dim(train_csv)
+dim(test_csv)
+
+```
+The training data set has 19622 observations & 160 variables and the testing data set has 20 observations and 160 variables. The outcome to predict is the "classe" variable in the training set data.
+
+##Preprocessing Data
+In order to get a more accurate prediction model,preprocessing of data is very important.So we will clean the data by removing all the observations with missing data.
+
+Since there are lot of columns having NA values,so we remove columns which have NA values.
+
+```{r}
+train_csv <- train_csv[, colSums(is.na(test_csv)) == 0] 
+test_csv <- test_csv[, colSums(is.na(test_csv)) == 0]
+```
+Since there are many irrelevant columns in the training and test dataset that doesnot contribute to the accelerometer measurements.So we remove those columns also.
+
+```{r}
+train_csv  <- train_csv[, -c(1:7)]
+test_csv   <- test_csv[, -c(1:7)]
+dim(train_csv)
+dim(test_csv)
+```
+The training data set now contains 19622 observations and 53 variables, while the test data set contains 20 observations and 53 variables. 
+## Partitioning the training dataset into train and validation set
+For this we divide the trainng dataset into 80% training and 20% validation.
+```{r}
+part_ind <- sample(2,nrow(train_csv),replace = TRUE,prob = c(.8,.2))
+train_data  <- train_csv[part_ind==1,]
+validation_data   <- train_csv[part_ind==2,]
+
+```
+Now we create two models random forest and decision tree and check performance is better.
+
+```{r}
+# creating decision_tree_model
+dec_tree_model  <- rpart(classe ~ ., data = train_data, method = "class")
+pred_dec_tree   <- predict(dec_tree_model, validation_data, type = "class")
+result_dec_tree   <- confusionMatrix(pred_dec_tree, validation_data$classe)
+
+# creating random_forest_model
+rand_forest_model <- randomForest(classe ~. , data = train_data, method = "class")
+pred_rand_forest  <- predict(rand_forest_model, validation_data, type = "class")
+result_rand_forest    <- confusionMatrix(pred_rand_forest,validation_data$classe)
+
+#Comparing models and choosing the one with the best accuracy 
+res_comp <- data.frame(result_rand_forest$overall, result_dec_tree$overall)
+res_comp
+
+```
+As we see that prediction is more accurate in case of random forest,so the final prediction is done with the random forest model
+
+```{r}
+final_pred <- predict(rand_forest_model, test_csv, type = "class")
+final_pred
+```
+
+## Including Vizualization Plots
+
+Correlation Matrix Visualization
+```{r}
+corr_mat_viz <- cor(train_csv[, -length(names(train_csv))])
+corrplot(corr_mat_viz, method="color")
+```
+
+Tree Visualization
+
+```{r}
+tree_viz <- rpart(classe ~ ., data=train_csv, method="class")
+prp(tree_viz)
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
