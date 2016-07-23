@@ -4,7 +4,7 @@ This repository contains the R markdown file and the Compiled generated html fil
 
 [click here](https://github.com/nilutpalsundi/practical_machine_learing/blob/gh-pages/practical_machine_learning_project.Rmd) R markdown file for the project.
 
-[click here]()Compiled Html file for the project.
+[click here](https://github.com/nilutpalsundi/practical_machine_learing/blob/gh-pages/practical_machine_learning_project.html) Compiled Html file for the project.
 
 [click here]()Folder containing csv files.
 
