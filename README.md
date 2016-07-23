@@ -8,6 +8,6 @@ This repository contains the R markdown file and the Compiled generated html fil
 
 [click here](https://github.com/nilutpalsundi/practical_machine_learing/tree/gh-pages/data) Folder containing csv files.
 
-[click here]() Folder containing the predicted valuesfor the test data.
+[click here](https://github.com/nilutpalsundi/practical_machine_learing/tree/gh-pages/prediction) Folder containing the predicted valuesfor the test data.
 
 [click here](https://github.com/nilutpalsundi/practical_machine_learing/tree/gh-pages/images) Folder containing the images.
